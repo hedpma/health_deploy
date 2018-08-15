@@ -1,7 +1,7 @@
 package main
 
 import (
-	"health_deploy/cmd"
+	"github.com/ThreesomeInc/health_deploy/cmd"
 )
 
 func main() {

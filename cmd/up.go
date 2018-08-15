@@ -23,7 +23,7 @@ import (
 	"time"
 	"bytes"
 	"strconv"
-	"health_deploy/deploy"
+	"github.com/ThreesomeInc/health_deploy/deploy"
 	"net/http"
 )
 
