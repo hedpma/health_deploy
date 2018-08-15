@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"errors"
 	"io"
-	"fmt"
 	"runtime"
 )
 
@@ -16,7 +15,11 @@ const TEMP_PATH = "/tmp/{{.Repo}}-{{.Version}}.jar"
 func formatTempPath(repo string, version string) (string, error) {
 	var tpl2 bytes.Buffer
 	tempPathTemplate := template.New("temp path template")
-	tempPathTemplate.Parse(TEMP_PATH)
+	if runtime.GOOS == "windows" {
+		tempPathTemplate.Parse("D:" + TEMP_PATH)
+	} else {
+		tempPathTemplate.Parse(TEMP_PATH)
+	}
 	err := tempPathTemplate.Execute(&tpl2, struct {
 		Repo    string
 		Version string
@@ -25,10 +28,6 @@ func formatTempPath(repo string, version string) (string, error) {
 }
 
 func DownloadFile(path string, url string) error {
-	if runtime.GOOS == "windows" {
-		fmt.Println("supplement the path")
-		path = "D:" + path
-	}
 	// Create the file
 	out, err := os.Create(path)
 	if err != nil {
