@@ -1,0 +1,4 @@
+port: 8088
+user: ThreesomeInc
+repo: health-diet
+deploy-root: /opt/HealthDiet/

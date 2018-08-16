@@ -17,7 +17,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"os"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"time"
@@ -30,17 +29,10 @@ import (
 // upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up",
-	Short: "bring up the deploy app",
-	Long:  `bring up the deploy app`,
+	Short: "Bring up the deploy app",
+	Long:  `Bring up the deploy app, need to specify the config files using --config=XXXX flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 4 {
-			fmt.Println("Usage: health_deploy up <port> <user> <repo_name> <deploy_root>")
-			os.Exit(-1)
-		}
-		port, _ := strconv.Atoi(args[0])
-		user := args[1]
-		repo := args[2]
-		deployRoot := args[3]
+		fmt.Println("Params are: ", "port->", port, ",user->", user, ",repo->", repo, ",deployRoot->", deployRoot)
 		startHttpServer(&port, user, repo, deployRoot)
 	},
 }
@@ -72,14 +64,4 @@ func startHttpServer(port *int, user, repo, deployRoot string) {
 
 func init() {
 	rootCmd.AddCommand(upCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// upCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// upCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
