@@ -32,7 +32,7 @@ var upCmd = &cobra.Command{
 	Short: "Bring up the deploy app",
 	Long:  `Bring up the deploy app, need to specify the config files using --config=XXXX flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Params are: ", "port->", port, ",user->", user, ",repo->", repo, ",deployRoot->", deployRoot)
+		fmt.Println("Params are: ", "port->", port, ",user->", user, ",repo->", repo, ",deployRoot->", deployRoot, "scripts->", deploy.StartScript, deploy.StopScript)
 		startHttpServer(&port, user, repo, deployRoot)
 	},
 }

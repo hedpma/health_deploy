@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"os/exec"
 	"strings"
-	deployCmd "github.com/ThreesomeInc/health_deploy/cmd"
 )
 
 type Result struct {
@@ -17,6 +16,9 @@ type Result struct {
 	Success bool   `json:"isSuccess"`
 	Message string `json:"message"`
 }
+
+var StartScript string
+var StopScript string
 
 const TEMPLATE = "https://jitpack.io/com/github/{{.User}}/{{.Repo}}/{{.Version}}/{{.Repo}}-{{.Version}}.jar"
 const DEPLOY_SYMBOLIC = "{{.Repo}}.jar"
@@ -68,7 +70,7 @@ func Deploy(user, repo, version, deployRoot string) (*Result, error) {
 }
 
 func execScript() error {
-	cmd := exec.Command("/bin/bash", "-c", deployCmd.StopScript)
+	cmd := exec.Command("/bin/bash", "-c", StopScript)
 	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
@@ -76,7 +78,7 @@ func execScript() error {
 	if err != nil {
 		return err
 	}
-	cmd = exec.Command("/bin/bash", "-c", deployCmd.StartScript)
+	cmd = exec.Command("/bin/bash", "-c", StartScript)
 	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()
