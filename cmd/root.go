@@ -28,7 +28,7 @@ import (
 var cfgFile string
 
 var port int
-var user string
+var account string
 var repo string
 var deployRoot string
 // rootCmd represents the base command when called without any subcommands
@@ -97,7 +97,7 @@ func initConfig() {
 		fmt.Println("Exception occurs:" + err.Error())
 		os.Exit(-1)
 	}
-	user = viper.GetString("user")
+	account = viper.GetString("account")
 	repo = viper.GetString("repo")
 	deployRoot = viper.GetString("deploy-root")
 	deploy.StartScript = viper.GetString("start-script")
