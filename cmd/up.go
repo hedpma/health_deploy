@@ -33,14 +33,14 @@ var upCmd = &cobra.Command{
 	Short: "bring up the deploy app",
 	Long:  `bring up the deploy app`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 3 {
+		if len(args) < 4 {
 			fmt.Println("Usage: health_deploy up <port> <user> <repo_name> <deploy_root>")
 			os.Exit(-1)
 		}
 		port, _ := strconv.Atoi(args[0])
 		user := args[1]
 		repo := args[2]
-		deployRoot := args[2]
+		deployRoot := args[3]
 		startHttpServer(&port, user, repo, deployRoot)
 	},
 }
