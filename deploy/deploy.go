@@ -68,6 +68,7 @@ func Deploy(user, repo, version, deployRoot string) (*Result, error) {
 
 func execScript() error {
 	cmd := exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"stop_health_diet.sh")
+	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 
@@ -75,6 +76,7 @@ func execScript() error {
 		return err
 	}
 	cmd = exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"start_health_diet.sh")
+	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()
 
