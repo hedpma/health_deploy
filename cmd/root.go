@@ -30,7 +30,8 @@ var port int
 var user string
 var repo string
 var deployRoot string
-
+var StartScript string
+var StopScript string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "health_deploy",
@@ -100,4 +101,6 @@ func initConfig() {
 	user = viper.GetString("user")
 	repo = viper.GetString("repo")
 	deployRoot = viper.GetString("deploy-root")
+	StartScript = viper.GetString("start-script")
+	StopScript = viper.GetString("stop-script")
 }

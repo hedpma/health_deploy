@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"os/exec"
 	"strings"
+	deployCmd "github.com/ThreesomeInc/health_deploy/cmd"
 )
 
 type Result struct {
@@ -67,7 +68,7 @@ func Deploy(user, repo, version, deployRoot string) (*Result, error) {
 }
 
 func execScript() error {
-	cmd := exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"stop_health_diet.sh")
+	cmd := exec.Command("/bin/bash", "-c", deployCmd.StopScript)
 	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
@@ -75,7 +76,7 @@ func execScript() error {
 	if err != nil {
 		return err
 	}
-	cmd = exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"start_health_diet.sh")
+	cmd = exec.Command("/bin/bash", "-c", deployCmd.StartScript)
 	fmt.Println("executing" + strings.Join(cmd.Args, " "))
 	cmd.Stdout = os.Stdout
 	err = cmd.Run()
