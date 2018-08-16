@@ -30,6 +30,7 @@ func Deploy(user, repo, version, deployRoot string) (*Result, error) {
 	if _, err := os.Stat(deployRoot); os.IsNotExist(err) {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	}
+	version = adjustVersion(version, user, repo)
 	if strings.HasSuffix(deployRoot, "/") {
 		DEPLOY_ROOT = deployRoot
 	} else {
@@ -67,6 +68,26 @@ func Deploy(user, repo, version, deployRoot string) (*Result, error) {
 		return &Result{Code: 0, Success: true, Message: fullAddr + " 部署成功！"}, nil
 	}
 	return &Result{Code: 1, Success: false, Message: "Internal failure"}, nil
+}
+
+func adjustVersion(version, user, repo string) string {
+	if version == "latest" {
+		cmd := exec.Command("curl", fmt.Sprintf("https://jitpack.io/com/github/%s/%s/", user, repo))
+		var body bytes.Buffer
+		cmd.Stdout = &body
+		cmd.Run()
+		versions := strings.Split(body.String(), "\n")
+		if len(versions) != 0 {
+			if versions[len(versions)-1] == "" {
+				latestVersion := versions[len(versions)-2]
+				return latestVersion[0: len(latestVersion)-2]
+			} else {
+				latestVersion := versions[len(versions)-1]
+				return latestVersion[0: len(latestVersion)-2]
+			}
+		}
+	}
+	return version
 }
 
 func execScript() error {
