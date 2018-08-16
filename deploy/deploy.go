@@ -51,18 +51,18 @@ func Deploy(user, repo, version string) (*Result, error) {
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	} else {
-		return &Result{Code: 0, Success: true, Message: fullAddr +" 部署成功！"}, nil
+		return &Result{Code: 0, Success: true, Message: fullAddr + " 部署成功！"}, nil
 	}
 	return &Result{Code: 1, Success: false, Message: "Internal failure"}, nil
 }
 
-func execScript() error{
-	err := exec.Command("/bin/bash", DEPLOY_ROOT + "stop_health_diet.sh").Run()
+func execScript() error {
+	err := exec.Command("/bin/bash", DEPLOY_ROOT+"stop_health_diet.sh").Run()
 
 	if err != nil {
 		return err
 	}
-	err = exec.Command("/bin/bash", DEPLOY_ROOT + "start_health_diet.sh").Run()
+	err = exec.Command("/bin/bash", DEPLOY_ROOT+"start_health_diet.sh").Run()
 
 	if err != nil {
 		return err
@@ -75,7 +75,7 @@ func doDeploy(deploySymbolic, tempPath, deployFile string) error {
 	if err != nil {
 		return err
 	}
-	if fileInfo.Mode() == os.ModeSymlink {
+	if (fileInfo.Mode() & os.ModeSymlink) != 0 {
 		//os.Readlink(deployRoot) to get the real path
 		if runtime.GOOS == "windows" {
 			os.Rename(tempPath, "D:"+DEPLOY_ROOT+deployFile)
