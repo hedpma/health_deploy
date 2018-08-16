@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"os/exec"
+	"strings"
 )
 
 type Result struct {
@@ -17,11 +18,20 @@ type Result struct {
 }
 
 const TEMPLATE = "https://jitpack.io/com/github/{{.User}}/{{.Repo}}/{{.Version}}/{{.Repo}}-{{.Version}}.jar"
-const DEPLOY_ROOT = "/opt/HealthDiet/"
-const DEPLOY_SYMBOLIC = "/opt/HealthDiet/{{.Repo}}.jar"
+const DEPLOY_SYMBOLIC = "{{.Repo}}.jar"
 const DEPLOY_FILE = "{{.Repo}}-{{.Version}}-{{.Time}}.jar"
 
-func Deploy(user, repo, version string) (*Result, error) {
+var DEPLOY_ROOT string
+
+func Deploy(user, repo, version, deployRoot string) (*Result, error) {
+	if _, err := os.Stat(deployRoot); os.IsNotExist(err) {
+		return &Result{Code: 1, Success: false, Message: err.Error()}, err
+	}
+	if strings.HasSuffix(deployRoot, "/") {
+		DEPLOY_ROOT = deployRoot
+	} else {
+		DEPLOY_ROOT = deployRoot + "/"
+	}
 	fullAddr, err := formatUrl(user, repo, version)
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
@@ -35,7 +45,7 @@ func Deploy(user, repo, version string) (*Result, error) {
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	}
-	deploySymbolic, err := formatDeployRoot(repo)
+	deploySymbolic, err := formatDeploySymbolic(repo)
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	}
@@ -43,7 +53,7 @@ func Deploy(user, repo, version string) (*Result, error) {
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	}
-	doDeploy(deploySymbolic, tempPath, deployFile)
+	doDeploy(deploySymbolic, tempPath, deployFile, repo)
 	if err != nil {
 		return &Result{Code: 1, Success: false, Message: err.Error()}, err
 	}
@@ -57,12 +67,16 @@ func Deploy(user, repo, version string) (*Result, error) {
 }
 
 func execScript() error {
-	err := exec.Command("/bin/bash", DEPLOY_ROOT+"stop_health_diet.sh").Run()
+	cmd := exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"stop_health_diet.sh")
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
 
 	if err != nil {
 		return err
 	}
-	err = exec.Command("/bin/bash", DEPLOY_ROOT+"start_health_diet.sh").Run()
+	cmd = exec.Command("/bin/bash", "-c", DEPLOY_ROOT+"start_health_diet.sh")
+	cmd.Stdout = os.Stdout
+	err = cmd.Run()
 
 	if err != nil {
 		return err
@@ -70,7 +84,7 @@ func execScript() error {
 	return nil
 }
 
-func doDeploy(deploySymbolic, tempPath, deployFile string) error {
+func doDeploy(deploySymbolic, tempPath, deployFile, repo string) error {
 	fileInfo, err := os.Lstat(deploySymbolic)
 	if err != nil {
 		return err
@@ -83,6 +97,8 @@ func doDeploy(deploySymbolic, tempPath, deployFile string) error {
 		} else {
 			os.Rename(tempPath, DEPLOY_ROOT+deployFile)
 			os.MkdirAll(DEPLOY_ROOT, 0755)
+			realPath, _ := os.Readlink(deploySymbolic)
+			os.Symlink(deployFile+".previous", realPath)
 		}
 		os.Remove(deploySymbolic)
 		os.Symlink(deployFile, deploySymbolic)
@@ -117,13 +133,13 @@ func formatUrl(user string, repo string, version string) (string, error) {
 	return tpl.String(), err
 }
 
-func formatDeployRoot(repo string) (string, error) {
+func formatDeploySymbolic(repo string) (string, error) {
 	var tpl bytes.Buffer
 	urlTemplate := template.New("DeployRoot template")
 	if runtime.GOOS == "windows" {
-		urlTemplate.Parse("D:" + DEPLOY_SYMBOLIC)
+		urlTemplate.Parse("D:" + DEPLOY_ROOT + DEPLOY_SYMBOLIC)
 	} else {
-		urlTemplate.Parse(DEPLOY_SYMBOLIC)
+		urlTemplate.Parse(DEPLOY_ROOT + DEPLOY_SYMBOLIC)
 	}
 	err := urlTemplate.Execute(&tpl, struct {
 		Repo string

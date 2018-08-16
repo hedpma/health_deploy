@@ -34,13 +34,14 @@ var upCmd = &cobra.Command{
 	Long:  `bring up the deploy app`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 3 {
-			fmt.Println("Usage: health_deploy up <port> <user> <repo_name>  <- your github root")
+			fmt.Println("Usage: health_deploy up <port> <user> <repo_name> <deploy_root>")
 			os.Exit(-1)
 		}
+		port, _ := strconv.Atoi(args[0])
 		user := args[1]
 		repo := args[2]
-		port, _ := strconv.Atoi(args[0])
-		startHttpServer(&port, user, repo)
+		deployRoot := args[2]
+		startHttpServer(&port, user, repo, deployRoot)
 	},
 }
 
@@ -49,7 +50,7 @@ func formatAsDate(t time.Time) string {
 	return fmt.Sprintf("%d%02d/%02d", year, month, day)
 }
 
-func startHttpServer(port *int, user, repo string) {
+func startHttpServer(port *int, user, repo, deployRoot string) {
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate": formatAsDate,
@@ -57,7 +58,10 @@ func startHttpServer(port *int, user, repo string) {
 	//https://github.com/delphinus/gin-assets-sample --see this sample for static bundles.
 	router.GET("/deploy", func(c *gin.Context) {
 		query := c.Request.URL.Query()
-		response, _ := deploy.Deploy(user, repo, query["release"][0])
+		if query["release"] == nil || len(query["release"]) == 0 || len(query["release"][0]) == 0 {
+			c.JSON(http.StatusOK, deploy.Result{Code: 1, Success: false, Message: "release param is not available"})
+		}
+		response, _ := deploy.Deploy(user, repo, query["release"][0], deployRoot)
 		c.JSON(http.StatusOK, response)
 	})
 	var buffer bytes.Buffer
