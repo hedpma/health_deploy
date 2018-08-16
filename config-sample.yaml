@@ -1,5 +1,5 @@
 port: 8088
-user: ThreesomeInc
+account: ThreesomeInc
 repo: health-diet
 deploy-root: /opt/HealthDiet/
 start-script: /opt/HealthDiet/start_health_diet.sh
