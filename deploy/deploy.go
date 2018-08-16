@@ -98,8 +98,8 @@ func doDeploy(deploySymbolic, tempPath, deployFile, repo string) error {
 			os.Rename(tempPath, DEPLOY_ROOT+deployFile)
 			os.MkdirAll(DEPLOY_ROOT, 0755)
 			realPath, _ := os.Readlink(deploySymbolic)
-			os.Remove(deployFile + ".previous")
-			os.Symlink(realPath, DEPLOY_ROOT+deployFile+".previous")
+			os.Remove(deploySymbolic + ".previous")
+			os.Symlink(realPath, deploySymbolic+".previous")
 		}
 		os.Remove(deploySymbolic)
 		os.Symlink(deployFile, deploySymbolic)
